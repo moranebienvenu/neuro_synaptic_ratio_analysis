@@ -25,8 +25,6 @@ from statsmodels.stats.multitest import multipletests
 from io import BytesIO
 from functions import process_zip_to_dataframe
 
-if "page" not in st.session_state:
-    st.session_state.page = "home"
 
 st.set_page_config(page_title="home",layout="wide")
 st.markdown(
@@ -109,15 +107,15 @@ if uploaded_zip is not None:
         st.warning("❌ No data could be combined. Please check the filenames or their contents.")
 
 # 2. Page selection
-    col1, col2 = st.columns(2)
-    with col1:
-        if st.button("📊 Neurotransmitters imbalance Visualisation"):
-            st.session_state.page = "visualisation"
-            st.rerun()
+col1, col2 = st.columns(2)
+with col1:
+    if st.button("📊 Neurotransmitters imbalance Visualisation"):
+        st.session_state.page = "visualisation"
+        st.rerun()
 
-    with col2:
-        if st.button("📈 Statistical Analysis"):
-            st.session_state.page = "stats"
-            st.rerun()
-    
-    st.markdown('</div>', unsafe_allow_html=True)
+with col2:
+    if st.button("📈 Statistical Analysis"):
+        st.session_state.page = "stats"
+        st.rerun()
+
+st.markdown('</div>', unsafe_allow_html=True)
