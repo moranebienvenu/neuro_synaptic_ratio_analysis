@@ -25,99 +25,102 @@ from statsmodels.stats.multitest import multipletests
 from io import BytesIO
 from functions import process_zip_to_dataframe
 
+def show():
 
-st.set_page_config(page_title="home",layout="wide")
-st.markdown(
-    """
-    <style>
-    .main {
-        background-color: #e6f1fb;
-    }
-    .custom-container {
-        background-color: #eaf4fc;
-        padding: 25px;
-        border-radius: 12px;
-        text-align: center;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-        margin-bottom: 30px;
-    }
+    st.markdown(
+        """
+        <style>
+        .main {
+            background-color: #e6f1fb;
+        }
+        .custom-container {
+            background-color: #eaf4fc;
+            padding: 25px;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            margin-bottom: 30px;
+        }
 
-    .custom-title {
-        font-family: 'Segoe UI', 'Roboto', sans-serif;
-        font-size: 46px;
-        font-weight: 600;
-        color: #1f4e79;
-        margin-bottom: 5px;
-        border-bottom: 3px solid transparent;
-        display: inline-block;
-        animation: underline-slide 3s ease-in-out infinite alternate;
-    }
+        .custom-title {
+            font-family: 'Segoe UI', 'Roboto', sans-serif;
+            font-size: 46px;
+            font-weight: 600;
+            color: #1f4e79;
+            margin-bottom: 5px;
+            border-bottom: 3px solid transparent;
+            display: inline-block;
+            animation: underline-slide 3s ease-in-out infinite alternate;
+        }
 
-    @keyframes underline-slide {
-        0%   { border-color: #1f4e79; }
-        100% { border-color: #82c0ff; }
-    }
+        @keyframes underline-slide {
+            0%   { border-color: #1f4e79; }
+            100% { border-color: #82c0ff; }
+        }
 
-    .custom-subtitle {
-        font-size: 20px;
-        color: #1f4e79;
-        margin-top: 5px;
-        font-weight: 400;
-    }
-    </style>
+        .custom-subtitle {
+            font-size: 20px;
+            color: #1f4e79;
+            margin-top: 5px;
+            font-weight: 400;
+        }
+        </style>
 
-    <div class="custom-container">
-        <div class="custom-title">
-            🧠 NeuroClinical Dashboard
+        <div class="custom-container">
+            <div class="custom-title">
+                🧠 NeuroClinical Dashboard
+            </div>
+            <div class="custom-subtitle">
+                Explore neurotransmitter ratios and their clinical relevance
+            </div>
         </div>
-        <div class="custom-subtitle">
-            Explore neurotransmitter ratios and their clinical relevance
-        </div>
-    </div>
-    """,
-    unsafe_allow_html=True
+        """,
+        unsafe_allow_html=True
+        )
+
+    # 1. Upload
+    uploaded_zip = st.file_uploader(
+        "📦 **Upload a ZIP file containing all patient CSVs obtained with NeuroTmap.py and a clinical_data file** ",
+        type=["zip"]
     )
 
-# 1. Upload
-uploaded_zip = st.file_uploader(
-    "📦 **Upload a ZIP file containing all patient CSVs obtained with NeuroTmap.py and a clinical_data file** ",
-    type=["zip"]
-)
+    st.caption(
+        """
+        The ZIP file must include:
+        - One or more `output_les_dis_sub-XXX_ses-VX.csv` files
+        - One or more `output_pre_post_synaptic_ratio_sub-XXX_ses-VX.csv` files
+        - Optional one `clinical_data.csv` or `.xlsx` file  
+        This clinical file **must include a `subject` column** matching the filenames, and can include other variables like:
+        `sex`, `timepoint`, `repetition_score`, `comprehension_score`, `naming_score`, `composite_score`,  `lesion_volume`
+        Lesion volume must be in mm3.
+        """
+    )
 
-st.caption(
-    """
-    The ZIP file must include:
-    - One or more `output_les_dis_sub-XXX_ses-VX.csv` files
-    - One or more `output_pre_post_synaptic_ratio_sub-XXX_ses-VX.csv` files
-    - Optional one `clinical_data.csv` or `.xlsx` file  
-      This clinical file **must include a `subject` column** matching the filenames, and can include other variables like:
-      `sex`, `timepoint`, `repetition_score`, `comprehension_score`, `naming_score`, `composite_score`,  `lesion_volume`
-      Lesion volume must be in mm3.
-    """
-)
+    if uploaded_zip is not None:
+        st.session_state.uploaded_zip = uploaded_zip
+        with st.spinner("⏳ Processing..."):
+            df_combined = process_zip_to_dataframe(uploaded_zip)
+            st.session_state['df_combined'] = df_combined
+        if not df_combined.empty:
+            st.success("✅ All data combined successfully!")
+            if st.checkbox("Show full combined dataset"):
+                st.dataframe(df_combined)  
+        else:
+            st.warning("❌ No data could be combined. Please check the filenames or their contents.")
 
-if uploaded_zip is not None:
-    with st.spinner("⏳ Processing..."):
-        df_combined = process_zip_to_dataframe(uploaded_zip)
-    st.session_state['uploaded_zip'] = uploaded_zip
-    st.session_state['df_combined'] = df_combined
-    if not df_combined.empty:
-        st.success("✅ All data combined successfully!")
-        if st.checkbox("Show full combined dataset"):
-            st.dataframe(df_combined)  
-    else:
-        st.warning("❌ No data could be combined. Please check the filenames or their contents.")
+    # 2. Page selection
+    col1, col2 = st.columns(2)
+    with col1:
+        if st.button("📊 Neurotransmitters imbalance Visualisation"):
+            st.session_state.page = "visualisation"
+            st.rerun()
 
-# 2. Page selection
-col1, col2 = st.columns(2)
-with col1:
-    if st.button("📊 Neurotransmitters imbalance Visualisation"):
-        st.session_state.page = "visualisation"
-        st.rerun()
+    with col2:
+        if st.button("📈 Statistical Analysis"):
+            st.session_state.page = "stats"
+            st.rerun()
 
-with col2:
-    if st.button("📈 Statistical Analysis"):
-        st.session_state.page = "stats"
-        st.rerun()
+    st.markdown('</div>', unsafe_allow_html=True)
+    pass
 
-st.markdown('</div>', unsafe_allow_html=True)
+show()
