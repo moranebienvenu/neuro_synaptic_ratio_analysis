@@ -1,5 +1,5 @@
 import streamlit as st
-from functions import get_family_and_link, heck_model_assumption, safe_glm_crossgroup, perform_group_comparison,clean_groups_for_variable, get_correlation_matrix, extract_subject_id, clean_predictor_name, process_zip_to_dataframe,get_subjects_and_title, detect_group
+from functions import get_family_and_link, check_model_assumption, safe_glm_crossgroup, perform_group_comparison,clean_groups_for_variable, get_correlation_matrix, extract_subject_id, clean_predictor_name, process_zip_to_dataframe,get_subjects_and_title, detect_group
 import pandas as pd
 import plotly.express as px
 import plotly.io as pio

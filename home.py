@@ -1,5 +1,32 @@
 import streamlit as st
+import streamlit as st
+import pandas as pd
+import plotly.express as px
+import plotly.io as pio
+from scipy.stats import ttest_ind, ttest_rel, levene, mannwhitneyu, shapiro, wilcoxon, norm
+import io
+import zipfile
+import re
+import os
+import matplotlib.pyplot as plt
+import numpy as np
+import plotly.graph_objects as go
+import plotly.subplots as sp
+import colorsys
+import statsmodels.formula.api as smf
+from statsmodels.genmod.families import Tweedie, Gaussian, Gamma, Poisson
+from statsmodels.genmod.families.links import Log, Identity, InversePower, Sqrt, NegativeBinomial
+from nilearn import plotting
+import seaborn as sns
+from statsmodels.stats.power import TTestIndPower, TTestPower
+from itertools import combinations
+from scipy.stats import shapiro, pearsonr, spearmanr
+from statsmodels.stats.multitest import multipletests
+from io import BytesIO
 from functions import process_zip_to_dataframe
+
+if "page" not in st.session_state:
+    st.session_state.page = "home"
 
 st.set_page_config(page_title="home",layout="wide")
 st.markdown(
