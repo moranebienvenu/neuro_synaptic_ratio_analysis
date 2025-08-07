@@ -1,43 +1,57 @@
 import streamlit as st
 from functions import process_zip_to_dataframe
 
+st.set_page_config(page_title="home",layout="wide")
 st.markdown(
     """
     <style>
-    .home-container {
+    .main {
+        background-color: #e6f1fb;
+    }
+    .custom-container {
+        background-color: #eaf4fc;
+        padding: 25px;
+        border-radius: 12px;
         text-align: center;
-        padding: 50px;
-        background-color: #f0f6fc;
-        border-radius: 15px;
-        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        margin-bottom: 30px;
     }
-    .home-title {
-        font-size: 48px;
-        font-weight: 700;
+
+    .custom-title {
+        font-family: 'Segoe UI', 'Roboto', sans-serif;
+        font-size: 46px;
+        font-weight: 600;
         color: #1f4e79;
-        margin-bottom: 10px;
+        margin-bottom: 5px;
+        border-bottom: 3px solid transparent;
+        display: inline-block;
+        animation: underline-slide 3s ease-in-out infinite alternate;
     }
-    .home-subtitle {
+
+    @keyframes underline-slide {
+        0%   { border-color: #1f4e79; }
+        100% { border-color: #82c0ff; }
+    }
+
+    .custom-subtitle {
         font-size: 20px;
-        color: #4f6d7a;
-        margin-bottom: 40px;
-    }
-    .stButton>button {
-        font-size: 18px;
-        padding: 0.75em 2em;
-        margin: 1em;
-        border-radius: 10px;
-        background-color: #1f4e79;
-        color: white;
-        transition: 0.3s;
-    }
-    .stButton>button:hover {
-        background-color: #2873a3;
+        color: #1f4e79;
+        margin-top: 5px;
+        font-weight: 400;
     }
     </style>
+
+    <div class="custom-container">
+        <div class="custom-title">
+            🧠 NeuroClinical Dashboard
+        </div>
+        <div class="custom-subtitle">
+            Explore neurotransmitter ratios and their clinical relevance
+        </div>
+    </div>
     """,
     unsafe_allow_html=True
-)
+    )
 
 # 1. Upload
 uploaded_zip = st.file_uploader(
@@ -59,9 +73,7 @@ st.caption(
 
 if uploaded_zip is not None:
     with st.spinner("⏳ Processing..."):
-        st.session_state['uploaded_zip'] = uploaded_zip
         df_combined = process_zip_to_dataframe(uploaded_zip)
-        st.session_state['df_combined'] = df_combined
     if not df_combined.empty:
         st.success("✅ All data combined successfully!")
         if st.checkbox("Show full combined dataset"):
@@ -70,11 +82,6 @@ if uploaded_zip is not None:
         st.warning("❌ No data could be combined. Please check the filenames or their contents.")
 
 # 2. Page selection
-with st.container():
-    st.markdown('<div class="home-container">', unsafe_allow_html=True)
-    st.markdown('<div class="home-title">🧠 NeuroClinical Dashboard</div>', unsafe_allow_html=True)
-    st.markdown('<div class="home-subtitle">Explore neurotransmitter ratios and their clinical relevance</div>', unsafe_allow_html=True)
-
     col1, col2 = st.columns(2)
     with col1:
         if st.button("📊 Neurotransmitters imbalance Visualisation"):
