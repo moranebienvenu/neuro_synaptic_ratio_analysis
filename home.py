@@ -99,6 +99,8 @@ st.caption(
 if uploaded_zip is not None:
     with st.spinner("⏳ Processing..."):
         df_combined = process_zip_to_dataframe(uploaded_zip)
+    st.session_state['uploaded_zip'] = uploaded_zip
+    st.session_state['df_combined'] = df_combined
     if not df_combined.empty:
         st.success("✅ All data combined successfully!")
         if st.checkbox("Show full combined dataset"):
